@@ -22,6 +22,9 @@ function extractText(payload: unknown): string {
 export async function POST(request: Request) {
   const apiKey = request.headers.get("x-openai-api-key")?.trim();
   if (!apiKey) return Response.json({ error: "Configura tu API key" }, { status: 401 });
+  if (apiKey.startsWith("AIza")) {
+    return Response.json({ error: "Esta es una clave de Google AI Studio. El asistente está configurado para una API key de OpenAI." }, { status: 400 });
+  }
 
   let messages: ChatMessage[];
   try {
