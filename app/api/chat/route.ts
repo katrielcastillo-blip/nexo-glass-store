@@ -1,3 +1,4 @@
+import { GoogleGenAI } from "@google/genai";
 import { products } from "@/lib/products";
 
 export const runtime = "nodejs";
@@ -5,26 +6,18 @@ export const dynamic = "force-dynamic";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
-function extractText(payload: unknown): string {
-  if (!payload || typeof payload !== "object") return "";
-  const data = payload as {
-    output_text?: string;
-    output?: Array<{ content?: Array<{ type?: string; text?: string }> }>;
-  };
-  if (data.output_text) return data.output_text;
-  return (data.output ?? [])
-    .flatMap((item) => item.content ?? [])
-    .filter((item) => item.type === "output_text")
-    .map((item) => item.text ?? "")
-    .join("\n");
+function geminiError(error: unknown): { message: string; status: number } {
+  const status = typeof (error as { status?: unknown })?.status === "number"
+    ? (error as { status: number }).status
+    : 502;
+  if (status === 401 || status === 403) return { status, message: "Gemini rechazó la API key. Comprueba la key de Google AI Studio." };
+  if (status === 429) return { status, message: "Gemini alcanzó el límite de solicitudes. Inténtalo nuevamente en un momento." };
+  return { status, message: "Gemini no pudo procesar la consulta. Inténtalo nuevamente." };
 }
 
 export async function POST(request: Request) {
-  const apiKey = request.headers.get("x-openai-api-key")?.trim();
-  if (!apiKey) return Response.json({ error: "Configura tu API key" }, { status: 401 });
-  if (apiKey.startsWith("AIza")) {
-    return Response.json({ error: "Esta es una clave de Google AI Studio. El asistente está configurado para una API key de OpenAI." }, { status: 400 });
-  }
+  const apiKey = request.headers.get("x-gemini-api-key")?.trim();
+  if (!apiKey) return Response.json({ error: "Configura tu API key de Gemini" }, { status: 401 });
 
   let messages: ChatMessage[];
   try {
@@ -43,35 +36,22 @@ export async function POST(request: Request) {
   ).join("\n");
 
   try {
-    const openAIResponse = await fetch("https://api.openai.com/v1/responses", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
+    const gemini = new GoogleGenAI({ apiKey });
+    const response = await gemini.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: messages.map((message) => ({
+        role: message.role === "assistant" ? "model" : "user",
+        parts: [{ text: message.content }],
+      })),
+      config: {
+        systemInstruction: `Eres el asistente de compras de Nexo. Responde en español, de forma breve y útil. Recomienda únicamente productos del catálogo y no inventes características. Precios en USD.\n\nCATÁLOGO:\n${catalog}`,
+        maxOutputTokens: 350,
       },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        instructions: `Eres el asistente de compras de Nexo. Responde en español, de forma breve y útil. Recomienda únicamente productos del catálogo y no inventes características. Precios en USD.\n\nCATÁLOGO:\n${catalog}`,
-        // Las cadenas conservan correctamente el rol de los turnos anteriores,
-        // incluidos los mensajes generados por el asistente.
-        input: messages.map((message) => ({
-          role: message.role,
-          content: message.content,
-        })),
-        max_output_tokens: 350,
-      }),
-      cache: "no-store",
     });
-
-    const payload = await openAIResponse.json();
-    if (!openAIResponse.ok) {
-      const errorMessage = payload?.error?.message ?? "OpenAI no pudo procesar la solicitud";
-      return Response.json({ error: errorMessage }, { status: openAIResponse.status });
-    }
-
-    const reply = extractText(payload);
+    const reply = response.text?.trim();
     return Response.json({ reply: reply || "No pude generar una respuesta." });
-  } catch {
-    return Response.json({ error: "No fue posible conectar con OpenAI" }, { status: 502 });
+  } catch (error) {
+    const { message, status } = geminiError(error);
+    return Response.json({ error: message }, { status });
   }
 }

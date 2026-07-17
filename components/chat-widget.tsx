@@ -35,7 +35,7 @@ export function ChatWidget({ apiKey, onSettings }: ChatWidgetProps) {
     setInput("");
     setLoading(true);
     try {
-      const response = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json", "x-openai-api-key": apiKey }, body: JSON.stringify({ messages: nextMessages }) });
+      const response = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json", "x-gemini-api-key": apiKey }, body: JSON.stringify({ messages: nextMessages }) });
       const data: unknown = await response.json().catch(() => null);
       setMessages((current) => [...current, { role: "assistant", content: responseText(data, response.ok) }]);
     } catch {

@@ -1,6 +1,6 @@
 # Nexo Glass Store
 
-Ecommerce demostrativo construido con Next.js App Router, TypeScript y Tailwind CSS. Incluye catálogo en memoria, carrito en estado React, checkout simulado, planificador de entregas por vecino más cercano y asistente de compras con OpenAI.
+Ecommerce demostrativo construido con Next.js App Router, TypeScript y Tailwind CSS. Incluye catálogo en memoria, carrito en estado React, checkout simulado, planificador de entregas por vecino más cercano y asistente de compras con Gemini.
 
 ## Desarrollo local
 
@@ -11,7 +11,7 @@ npm install
 npm run dev
 ```
 
-Abre `http://localhost:3000`. No se requieren variables de entorno: la API key de OpenAI se ingresa en Configuración y solo vive en el estado React de la pestaña.
+Abre `http://localhost:3000`. No se requieren variables de entorno: la API key de Gemini de Google AI Studio se ingresa en Configuración y solo vive en el estado React de la pestaña.
 
 ## Verificación
 
@@ -39,7 +39,7 @@ git push -u origin main
 3. Entra en `https://vercel.com/new` e inicia sesión.
 4. Importa el repositorio de GitHub.
 5. Vercel detectará Next.js. Conserva los valores predeterminados y selecciona **Deploy**.
-6. No agregues variables de entorno. Cada usuario introduce su key desde la interfaz.
+6. No agregues variables de entorno. Cada usuario introduce su key de Gemini desde la interfaz.
 
 ### Vercel CLI
 
