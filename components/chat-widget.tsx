@@ -7,6 +7,15 @@ type Message = { role: "user" | "assistant"; content: string };
 
 interface ChatWidgetProps { apiKey: string; onSettings: () => void; }
 
+function responseText(data: unknown, ok: boolean): string {
+  if (!data || typeof data !== "object") return ok ? "Sin respuesta." : "Ocurrió un error al consultar el asistente.";
+  const payload = data as { reply?: unknown; error?: unknown };
+  const value = ok ? payload.reply : payload.error;
+  return typeof value === "string" && value.trim()
+    ? value
+    : ok ? "Sin respuesta." : "Ocurrió un error al consultar el asistente.";
+}
+
 export function ChatWidget({ apiKey, onSettings }: ChatWidgetProps) {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
@@ -25,8 +34,8 @@ export function ChatWidget({ apiKey, onSettings }: ChatWidgetProps) {
     setLoading(true);
     try {
       const response = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json", "x-openai-api-key": apiKey }, body: JSON.stringify({ messages: nextMessages }) });
-      const data = (await response.json()) as { reply?: string; error?: string };
-      setMessages((current) => [...current, { role: "assistant", content: response.ok ? data.reply ?? "Sin respuesta." : data.error ?? "Ocurrió un error." }]);
+      const data: unknown = await response.json().catch(() => null);
+      setMessages((current) => [...current, { role: "assistant", content: responseText(data, response.ok) }]);
     } catch {
       setMessages((current) => [...current, { role: "assistant", content: "No pude conectar con el asistente. Inténtalo nuevamente." }]);
     } finally { setLoading(false); }

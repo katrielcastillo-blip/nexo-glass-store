@@ -49,9 +49,11 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         model: "gpt-4o-mini",
         instructions: `Eres el asistente de compras de Nexo. Responde en español, de forma breve y útil. Recomienda únicamente productos del catálogo y no inventes características. Precios en USD.\n\nCATÁLOGO:\n${catalog}`,
+        // Las cadenas conservan correctamente el rol de los turnos anteriores,
+        // incluidos los mensajes generados por el asistente.
         input: messages.map((message) => ({
           role: message.role,
-          content: [{ type: "input_text", text: message.content }],
+          content: message.content,
         })),
         max_output_tokens: 350,
       }),
