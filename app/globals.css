@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --glass: rgba(12, 31, 51, 0.58);
+  --glass-strong: rgba(9, 25, 43, 0.88);
+  --line: rgba(219, 248, 255, 0.15);
+  --muted: #a9bfcb;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: #eafcff;
+  background:
+    radial-gradient(circle at 8% 5%, rgba(87, 216, 255, .2), transparent 28rem),
+    radial-gradient(circle at 88% 25%, rgba(184, 255, 92, .12), transparent 24rem),
+    radial-gradient(circle at 45% 100%, rgba(224, 167, 255, .12), transparent 32rem),
+    #06111e;
+  font-family: var(--font-manrope), sans-serif;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: .18;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E");
+  z-index: -1;
+}
+
+::selection { background: #b8ff5c; color: #07111f; }
+button, input, textarea { font: inherit; }
+button { -webkit-tap-highlight-color: transparent; }
+
+@layer components {
+  .glass {
+    @apply border border-white/15 bg-slate-900/50 shadow-glass backdrop-blur-2xl;
+  }
+  .glass-soft {
+    @apply border border-white/10 bg-white/[0.055] backdrop-blur-xl;
+  }
+  .focus-ring {
+    @apply outline-none focus-visible:ring-2 focus-visible:ring-acid focus-visible:ring-offset-2 focus-visible:ring-offset-ink;
+  }
+  .field {
+    @apply focus-ring w-full rounded-2xl border border-white/15 bg-white/[0.07] px-4 py-3 text-sm text-frost placeholder:text-slate-500 transition focus:border-cyan/60;
+  }
+  .primary-button {
+    @apply focus-ring inline-flex items-center justify-center gap-2 rounded-full bg-acid px-5 py-3 text-sm font-extrabold text-ink shadow-[0_12px_36px_rgba(184,255,92,.18)] transition hover:-translate-y-0.5 hover:bg-[#c8ff83] disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0;
+  }
+  .icon-button {
+    @apply focus-ring inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/[0.07] text-frost transition hover:border-white/30 hover:bg-white/[0.12];
+  }
+}
+
+.route-line {
+  background-image: linear-gradient(90deg, rgba(87,216,255,.75) 50%, transparent 50%);
+  background-size: 10px 2px;
+  background-repeat: repeat-x;
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+
