@@ -22,7 +22,9 @@ export function ChatWidget({ apiKey, onSettings }: ChatWidgetProps) {
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([{ role: "assistant", content: "Hola, soy Nexo. Puedo comparar productos y ayudarte a elegir." }]);
   const bottomRef = useRef<HTMLDivElement>(null);
-  useEffect(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), [messages, loading]);
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, loading]);
 
   const send = async (event: FormEvent) => {
     event.preventDefault();
