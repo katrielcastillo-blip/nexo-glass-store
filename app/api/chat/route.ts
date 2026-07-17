@@ -45,7 +45,7 @@ export async function POST(request: Request) {
       })),
       config: {
         systemInstruction: `Eres el asistente de compras de Nexo. Responde en español, de forma breve y útil. Recomienda únicamente productos del catálogo y no inventes características. Precios en USD.\n\nCATÁLOGO:\n${catalog}`,
-        maxOutputTokens: 350,
+        maxOutputTokens: 2048,
       },
     });
     const reply = response.text?.trim();
